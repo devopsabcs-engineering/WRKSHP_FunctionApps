@@ -26,10 +26,12 @@ variables:
   - name: buildConfiguration
     value: "Release"
 
+pool:
+  vmImage: $(vmImageName)
+
 stages:
   - stage: Build
     displayName: Build stage
-
     jobs:
       - job: Set_tag_for_version
         displayName: set version once
@@ -64,9 +66,6 @@ stages:
       - job: Build
         displayName: Build
         dependsOn: Set_tag_for_version
-        pool:
-          vmImage: $(vmImageName)
-
         steps:
           - checkout: self
             persistCredentials: true
@@ -88,7 +87,6 @@ stages:
               projects: |
                 $(workingDirectory)/*.csproj
               arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration $(buildConfiguration) -p:Version=$(GitVersion.SemVer) -p:FileVersion=$(GitVersion.AssemblySemFileVer) -p:AssemblyVersion=$(GitVersion.AssemblySemVer)
-
           - task: ArchiveFiles@2
             displayName: "Archive files"
             inputs:
@@ -97,22 +95,16 @@ stages:
               archiveType: zip
               archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
               replaceExistingArchive: true
-
           - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
             artifact: drop
-
   - stage: Deploy
     displayName: Deploy stage
     dependsOn: Build
     condition: succeeded()
-
     jobs:
       - deployment: Deploy
         displayName: Deploy
         environment: "WRKSHP_IS_fn_app_development"
-        pool:
-          vmImage: $(vmImageName)
-
         strategy:
           runOnce:
             deploy:
