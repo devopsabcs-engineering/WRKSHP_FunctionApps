@@ -174,7 +174,7 @@ stages:
                   inputs:
                     connectedServiceNameARM: "$(azureSubscription)"
                     appType: functionApp
-                    appName: $(functionAppName)
+                    appName: $(retrieveAzureFunctionName.functionAppName)
                     package: "$(Pipeline.Workspace)/drop/$(Build.BuildId).zip"
   - stage: TestApp
     displayName: Test App stage ${{ parameters.nameSuffix }}
