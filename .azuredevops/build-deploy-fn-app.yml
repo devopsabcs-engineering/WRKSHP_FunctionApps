@@ -9,7 +9,7 @@ trigger:
 variables:
   # Azure Resource Manager connection created during pipeline creation
   - name: azureSubscription
-    value: "267e82a2-48e3-415f-998c-6d3ac51df671"
+    value: "WRKSHP_IS_ME-MngEnvMCAP675646-emknafo-1 (64c3d212-40ed-4c6d-a825-6adfbdf25dad)-1375"
 
   # Function app name
   - name: functionAppName
