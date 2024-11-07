@@ -10,7 +10,7 @@ parameters:
   - name: nameSuffix
     displayName: "Name suffix"
     type: string
-    default: ek002
+    default: ek003
 
 variables:
   # Azure Resource Manager connection created during pipeline creation

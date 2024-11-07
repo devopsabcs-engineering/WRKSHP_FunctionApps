@@ -17,10 +17,18 @@ namespace DevOpsABCs.Function
         [Function("HttpExample")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
-            // get version of the function from assembly
-            var version = GetType().Assembly.GetName().Version;
-            _logger.LogInformation($"C# HTTP trigger function processed a request. ({version})");
-            return new OkObjectResult($"Welcome to Azure Functions! ({version})");
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+            // Get version from Assembly
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            // Get the name parameter from the query string or request body
+            string name = req.Query["name"].FirstOrDefault() ?? "Anonymous Person";
+
+            if (name == "Anonymous Person")
+                return new BadRequestObjectResult($"Welcome to Azure Functions, {name}! (version: {version}). Please provide a name query parameter next time!");
+
+            return new OkObjectResult($"Welcome to Azure Functions, {name}! (version: {version})");
         }
     }
 }
