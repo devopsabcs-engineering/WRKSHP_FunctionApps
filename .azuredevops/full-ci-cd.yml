@@ -1,4 +1,5 @@
-trigger: none
+trigger:
+- main
 
 pool:
   vmImage: "windows-latest"
@@ -6,6 +7,8 @@ pool:
 variables:
   - name: serviceConnection
     value: "WRKSHP_IS_ME-MngEnvMCAP675646-emknafo-1 (64c3d212-40ed-4c6d-a825-6adfbdf25dad)-4734"
+  - name: workingDirectory
+    value: $(System.DefaultWorkingDirectory)/src/helloworldexample
 
 stages:
   - stage: Build
@@ -19,9 +22,10 @@ stages:
               installationPath: $(Agent.ToolsDirectory)/dotnet
           - script: dotnet build --configuration Release
             displayName: "dotnet build $(Build.SourcesDirectory)/src/helloworldexample/WRKSHP_FunctionApps.csproj"
+            workingDirectory: $(workingDirectory)
           - task: PublishBuildArtifacts@1
             inputs:
-              pathtoPublish: "$(Build.SourcesDirectory)/src/helloworldexample"
+              pathtoPublish: "$(workingDirectory)"
               artifactName: "drop"
               publishLocation: "Container"
   - stage: Deploy
