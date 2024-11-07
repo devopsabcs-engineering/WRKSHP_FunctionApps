@@ -321,3 +321,5 @@ resource azureFunction 'Microsoft.Web/sites@2024-04-01' = {
 //     isDisabled: false
 //   }
 // }
+
+output azureFunctionName string = azureFunction.name

@@ -17,9 +17,9 @@ variables:
   - name: azureSubscription
     value: "WRKSHP_IS_ME-MngEnvMCAP675646-emknafo-1 (64c3d212-40ed-4c6d-a825-6adfbdf25dad)-1375"
 
-  # Function app name
-  - name: functionAppName
-    value: "func-hello-world-$(nameSuffix)"
+  # # Function app name
+  # - name: functionAppName
+  #   value: "func-hello-world-$(nameSuffix)"
 
   # Agent VM image name
   - name: vmImageName
@@ -37,6 +37,12 @@ variables:
 
   - name: nameSuffix
     value: ${{ parameters.nameSuffix }}
+
+  - name: deploymentName
+    value: "deploy-rg-fnapp-$(nameSuffix)"
+
+  - name: resourceGroupName
+    value: "rg-fnapp-$(nameSuffix)"
 
 pool:
   vmImage: $(vmImageName)
@@ -129,7 +135,7 @@ stages:
                     scriptType: "pscore"
                     scriptLocation: "scriptPath"
                     scriptPath: "New-Deployment.ps1"
-                    arguments: "-location $(location) -nameSuffix $(nameSuffix)"
+                    arguments: "-location $(location) -nameSuffix $(nameSuffix) -deploymentName $(deploymentName) -resourceGroupName $(resourceGroupName)"
   - stage: Deploy
     displayName: Deploy stage ${{ parameters.nameSuffix }}
     dependsOn: DeployInfrastructure
@@ -142,6 +148,27 @@ stages:
           runOnce:
             deploy:
               steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: "Retrieve Logic App Name"
+                  name: retrieveAzureFunctionName
+                  inputs:
+                    azureSubscription: "$(serviceConnection)"
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show                      
+                      # get azure function app name
+                      $azureFunctionName = az deployment group show --resource-group $(resourceGroupName) `
+                        --name $(deploymentName) `
+                        --query properties.outputs.azureFunctionName.value `
+                        -o tsv
+                      echo $azureFunctionName
+                      Write-Host "##vso[task.setvariable variable=functionAppName;isOutput=true]$azureFunctionName"
+                # echo the logic app name
+                - powershell: |
+                    Write-Host $(retrieveAzureFunctionName.functionAppName)
+                  displayName: "Echo Logic App Name"
                 - task: AzureFunctionApp@2
                   displayName: "Azure functions app deploy"
                   inputs:
