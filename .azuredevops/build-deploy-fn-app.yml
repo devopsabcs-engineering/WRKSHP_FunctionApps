@@ -153,7 +153,7 @@ stages:
                   displayName: "Retrieve Logic App Name"
                   name: retrieveAzureFunctionName
                   inputs:
-                    azureSubscription: "$(serviceConnection)"
+                    azureSubscription: "$(azureSubscription)"
                     scriptType: "pscore"
                     scriptLocation: "inlineScript"
                     inlineScript: |
@@ -176,3 +176,20 @@ stages:
                     appType: functionApp
                     appName: $(functionAppName)
                     package: "$(Pipeline.Workspace)/drop/$(Build.BuildId).zip"
+  - stage: TestApp
+    displayName: Test App stage ${{ parameters.nameSuffix }}
+    dependsOn: Deploy
+    condition: succeeded()
+    jobs:
+      - job: TestApp
+        displayName: Test App Job ${{ parameters.nameSuffix }}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "test app deployment"
+            inputs:
+              azureSubscription: "$(azureSubscription)"
+              scriptType: "pscore"
+              scriptLocation: "scriptPath"
+              scriptPath: "Validate-Deployment.ps1"
+              arguments: -instanceNumber $(instanceNumber) -subscriptionId $(subscriptionId)
