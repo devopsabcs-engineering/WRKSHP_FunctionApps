@@ -192,4 +192,4 @@ stages:
               scriptType: "pscore"
               scriptLocation: "scriptPath"
               scriptPath: "Validate-Deployment.ps1"
-              arguments: -instanceNumber $(instanceNumber) -subscriptionId $(subscriptionId)
+              arguments: -nameSuffix $(nameSuffix) -deploymentName $(deploymentName) -resourceGroupName $(resourceGroupName)
