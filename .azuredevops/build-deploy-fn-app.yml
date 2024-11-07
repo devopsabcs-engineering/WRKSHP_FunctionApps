@@ -35,6 +35,9 @@ variables:
   - name: location
     value: "canadacentral"
 
+  - name: nameSuffix
+    value: ${{ parameters.nameSuffix }}
+
 pool:
   vmImage: $(vmImageName)
 
