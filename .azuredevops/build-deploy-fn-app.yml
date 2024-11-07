@@ -6,6 +6,12 @@
 trigger:
   - main
 
+parameters:
+  - name: nameSuffix
+    displayName: "Name suffix"
+    type: string
+    default: ek002
+
 variables:
   # Azure Resource Manager connection created during pipeline creation
   - name: azureSubscription
@@ -13,7 +19,7 @@ variables:
 
   # Function app name
   - name: functionAppName
-    value: "func-hello-world-ek001"
+    value: "func-hello-world-$(nameSuffix)"
 
   # Agent VM image name
   - name: vmImageName
@@ -25,6 +31,9 @@ variables:
 
   - name: buildConfiguration
     value: "Release"
+
+  - name: location
+    value: "canadacentral"
 
 pool:
   vmImage: $(vmImageName)
@@ -97,14 +106,35 @@ stages:
               replaceExistingArchive: true
           - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
             artifact: drop
-  - stage: Deploy
-    displayName: Deploy stage
+  - stage: DeployInfrastructure
+    displayName: Deploy Infra stage ${{ parameters.nameSuffix }}
     dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployInfra
+        displayName: Deploy Infra Job ${{ parameters.nameSuffix }}
+        environment: "WRKSHP_IS_infra_fn_app_development_$(nameSuffix)"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: "deploy infra"
+                  inputs:
+                    azureSubscription: "$(azureSubscription)"
+                    scriptType: "pscore"
+                    scriptLocation: "scriptPath"
+                    scriptPath: "New-Deployment.ps1"
+                    arguments: "-location $(location) -nameSuffix $(nameSuffix)"
+  - stage: Deploy
+    displayName: Deploy stage ${{ parameters.nameSuffix }}
+    dependsOn: DeployInfrastructure
     condition: succeeded()
     jobs:
       - deployment: Deploy
         displayName: Deploy
-        environment: "WRKSHP_IS_fn_app_development"
+        environment: "WRKSHP_IS_fn_app_development_$(nameSuffix)"
         strategy:
           runOnce:
             deploy:

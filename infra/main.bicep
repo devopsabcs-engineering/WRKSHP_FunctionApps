@@ -63,19 +63,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     }
   }
 
-  resource storageAccounts_funchelloworldek001_name_default 'blobServices@2023-05-01' = {
+  resource blobservices_default 'blobServices@2023-05-01' = {
     name: 'default'
   }
 
-  resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_funchelloworldek001_name_default 'fileServices@2023-05-01' = {
+  resource fileServices_default 'fileServices@2023-05-01' = {
     name: 'default'
   }
 
-  resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_funchelloworldek001_name_default 'queueServices@2023-05-01' = {
+  resource queueServices_default 'queueServices@2023-05-01' = {
     name: 'default'
   }
 
-  resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_funchelloworldek001_name_default 'tableServices@2023-05-01' = {
+  resource tableServices_default 'tableServices@2023-05-01' = {
     name: 'default'
   }
 }
@@ -138,6 +138,56 @@ resource azureFunction 'Microsoft.Web/sites@2024-04-01' = {
       http20Enabled: false
       functionAppScaleLimit: 200
       minimumElasticInstanceCount: 0
+      appSettings: [
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: appInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'
+          value: '1.0.0'
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsights.properties.ConnectionString
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~2'
+        }
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+        }
+        {
+          name: 'DiagnosticServices_EXTENSION_VERSION'
+          value: '~3'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet-isolated'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: azureFunctionName
+        }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        }
+        {
+          name: 'WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED'
+          value: '1'
+        }
+      ]
     }
     scmSiteAlsoStopped: false
     clientAffinityEnabled: false
