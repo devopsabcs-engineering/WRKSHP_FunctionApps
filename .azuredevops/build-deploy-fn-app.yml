@@ -17,10 +17,6 @@ variables:
   - name: azureSubscription
     value: "WRKSHP_IS_ME-MngEnvMCAP675646-emknafo-1 (64c3d212-40ed-4c6d-a825-6adfbdf25dad)-1375"
 
-  # # Function app name
-  # - name: functionAppName
-  #   value: "func-hello-world-$(nameSuffix)"
-
   # Agent VM image name
   - name: vmImageName
     value: "windows-latest"
@@ -150,7 +146,7 @@ stages:
               steps:
                 - checkout: self
                 - task: AzureCLI@2
-                  displayName: "Retrieve Logic App Name"
+                  displayName: "Retrieve Function App Name"
                   name: retrieveAzureFunctionName
                   inputs:
                     azureSubscription: "$(azureSubscription)"
@@ -165,10 +161,10 @@ stages:
                         -o tsv
                       echo $azureFunctionName
                       Write-Host "##vso[task.setvariable variable=functionAppName;isOutput=true]$azureFunctionName"
-                # echo the logic app name
+                # echo the function app name
                 - powershell: |
                     Write-Host $(retrieveAzureFunctionName.functionAppName)
-                  displayName: "Echo Logic App Name"
+                  displayName: "Echo Function App Name"
                 - task: AzureFunctionApp@2
                   displayName: "Azure functions app deploy"
                   inputs:
