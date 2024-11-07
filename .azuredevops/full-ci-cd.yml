@@ -1,0 +1,45 @@
+trigger: none
+
+pool:
+  vmImage: "windows-latest"
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: "sdk"
+              version: "8.x"
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+          - script: dotnet build --configuration Release
+            displayName: "dotnet build $(Build.SourcesDirectory)/src/helloworldexample/WRKSHP_FunctionApps.csproj"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: "$(Build.SourcesDirectory)/src/helloworldexample"
+              artifactName: "drop"
+              publishLocation: "Container"
+  - stage: Deploy
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        environment: "WRKSHP_IS_fnapp_dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UseDotNet@2
+                  inputs:
+                    packageType: "sdk"
+                    version: "8.x"
+                    installationPath: $(Agent.ToolsDirectory)/dotnet
+                - script: dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)/publish
+                  displayName: "dotnet publish $(Build.SourcesDirectory)/src/helloworldexample/WRKSHP_FunctionApps.csproj"
+                - task: AzureFunctionApp@1
+                  inputs:
+                    azureSubscription: "AzureRmSp"
+                    appType: "functionApp"
+                    appName: "helloworldexample"
+                    package: $(Build.ArtifactStagingDirectory)/publish
+                    deploymentMethod: "auto"
