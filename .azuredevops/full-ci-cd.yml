@@ -3,6 +3,10 @@ trigger: none
 pool:
   vmImage: "windows-latest"
 
+variables:
+  - name: serviceConnection
+    value: "WRKSHP_IS_ME-MngEnvMCAP675646-emknafo-1 (64c3d212-40ed-4c6d-a825-6adfbdf25dad)-4734"
+
 stages:
   - stage: Build
     jobs:
@@ -38,7 +42,7 @@ stages:
                   displayName: "dotnet publish $(Build.SourcesDirectory)/src/helloworldexample/WRKSHP_FunctionApps.csproj"
                 - task: AzureFunctionApp@1
                   inputs:
-                    azureSubscription: "AzureRmSp"
+                    azureSubscription: "$(serviceConnection)"
                     appType: "functionApp"
                     appName: "helloworldexample"
                     package: $(Build.ArtifactStagingDirectory)/publish
