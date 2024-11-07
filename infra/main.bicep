@@ -1,8 +1,9 @@
-param azureFunctionName string = 'func-hello-world-${uniqueString(resourceGroup().id)}'
-param appInsightsName string = 'appi-func-hello-world-${uniqueString(resourceGroup().id)}'
+param nameSuffix string
+param azureFunctionName string = 'func-hello-world-${nameSuffix}-${uniqueString(resourceGroup().id)}'
+param appInsightsName string = 'appi-func-hello-world-${nameSuffix}-${uniqueString(resourceGroup().id)}'
 param storageAccountName string = 'stfunchello${uniqueString(resourceGroup().id)}'
-param appServicePlanName string = 'asp-func-hello-world-${uniqueString(resourceGroup().id)}'
-param logAnalyticsWorkspaceName string = 'log-func-hello-world-${uniqueString(resourceGroup().id)}'
+param appServicePlanName string = 'asp-func-hello-world-${nameSuffix}-${uniqueString(resourceGroup().id)}'
+param logAnalyticsWorkspaceName string = 'log-func-hello-world-${nameSuffix}-${uniqueString(resourceGroup().id)}'
 param location string = resourceGroup().location
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
