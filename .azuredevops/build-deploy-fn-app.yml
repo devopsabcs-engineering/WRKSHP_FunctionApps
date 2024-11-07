@@ -8,16 +8,23 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: "267e82a2-48e3-415f-998c-6d3ac51df671"
+  - name: azureSubscription
+    value: "267e82a2-48e3-415f-998c-6d3ac51df671"
 
   # Function app name
-  functionAppName: "func-hello-world-ek001"
+  - name: functionAppName
+    value: "func-hello-world-ek001"
 
   # Agent VM image name
-  vmImageName: "windows-latest"
+  - name: vmImageName
+    value: "windows-latest"
 
   # Working Directory
-  workingDirectory: "$(System.DefaultWorkingDirectory)/src/helloworldexample"
+  - name: workingDirectory
+    value: "$(System.DefaultWorkingDirectory)/src/helloworldexample"
+
+  - name: buildConfiguration
+    value: "Release"
 
 stages:
   - stage: Build
@@ -80,7 +87,7 @@ stages:
               command: "build"
               projects: |
                 $(workingDirectory)/*.csproj
-              arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration Release
+              arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration $(buildConfiguration) -p:Version=$(GitVersion.SemVer) -p:FileVersion=$(GitVersion.AssemblySemFileVer) -p:AssemblyVersion=$(GitVersion.AssemblySemVer)
 
           - task: ArchiveFiles@2
             displayName: "Archive files"

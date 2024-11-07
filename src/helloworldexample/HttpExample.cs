@@ -17,8 +17,10 @@ namespace DevOpsABCs.Function
         [Function("HttpExample")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-            return new OkObjectResult("Welcome to Azure Functions!");
+            // get version of the function from assembly
+            var version = GetType().Assembly.GetName().Version;
+            _logger.LogInformation($"C# HTTP trigger function processed a request. ({version})");
+            return new OkObjectResult($"Welcome to Azure Functions! ({version})");
         }
     }
 }
