@@ -28,7 +28,16 @@ $functionKey = az functionapp keys list --name $functionAppName `
 
 Write-Host "functionKey: $functionKey"
 
-$testUrl = "https://$functionAppName.azurewebsites.net/api/HttpExample?code=$functionKey"
+$addNameParameter = $true
+
+if ($addNameParameter) {
+    Write-Host "Adding name parameter to testUrl"
+    $testUrl = "https://$functionAppName.azurewebsites.net/api/HttpExample?name=AzureDevOpsSmokeTest&code=$functionKey"
+}
+else {
+    $testUrl = "https://$functionAppName.azurewebsites.net/api/HttpExample?code=$functionKey"
+}
+
 Write-Host "testUrl: $testUrl"
 
 # test function
