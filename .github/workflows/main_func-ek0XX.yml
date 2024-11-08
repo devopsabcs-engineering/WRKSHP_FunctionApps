@@ -108,7 +108,8 @@ jobs:
             -o tsv
           echo "Function App Name: $azureFunctionName"
           # set the function app name as an environment variable
-          echo "##[set-output name=AZURE_FUNCTIONAPP_NAME;]$azureFunctionName"
+          #echo "AZURE_FUNCTIONAPP_NAME=$azureFunctionName" >> $GITHUB_ENV
+          echo "AZURE_FUNCTIONAPP_NAME=$azureFunctionName" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: "Run Azure Functions Action"
         uses: Azure/functions-action@v1
         id: fa
