@@ -12,19 +12,15 @@ on:
       nameSuffix:
         description: "Unique suffix for resource names"
         required: true
-        default: "ek003"
+        default: "ek005"
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "src" # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
-  AZURE_FUNCTIONAPP_NAME: "func-ek002" # set this to your Azure Function App name
-  RESOURCE_GROUP: "rg-ek002" # set this to your Azure Resource Group name
-  APIM_GATEWAY_URL: "https://apim-ek002.azure-api.net" # set this to your Azure API Management Gateway URL
-  APIM_SERVICE_NAME: "apim-ek002" # set this to your Azure API Management Service Name
+  AZURE_FUNCTIONAPP_NAME: "func-${{ inputs.nameSuffix }}" # set this to your Azure Function App name
+  RESOURCE_GROUP: "rg-${{ inputs.nameSuffix }}" # set this to your Azure Resource Group name
   LOCATION: "canadacentral" # set this to the Azure region where your resources will be deployed
-  NAME_SUFFIX: "ek002" # set this to a unique suffix for resource names
-  PUBLISHER_EMAIL: "admin@MngEnvMCAP675646.onmicrosoft.com"
-  PUBLISHER_NAME: "Sys Admin"
+  NAME_SUFFIX: "${{ inputs.nameSuffix }}" # set this to a unique suffix for resource names
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -52,9 +48,7 @@ jobs:
         shell: pwsh
         run: |
           ./New-Deployment.ps1 -location "${{ env.LOCATION }}" `
-            -nameSuffix "${{ env.NAME_SUFFIX }}" `
-            -publisherEmail "${{ env.PUBLISHER_EMAIL }}" `
-            -publisherName "${{ env.PUBLISHER_NAME }}" `
+            -nameSuffix "${{ env.NAME_SUFFIX }}"
   build-and-deploy:
     runs-on: windows-latest
     needs: deploy-infra
@@ -114,7 +108,4 @@ jobs:
       - name: Validate Deployment
         shell: pwsh
         run: |
-          ./Validate-Deployment.ps1 -apimGatewayUrl ${{ env.APIM_GATEWAY_URL }} `
-            -resourceGroup ${{ env.RESOURCE_GROUP }} `
-            -apimServiceName ${{ env.APIM_SERVICE_NAME }} `
-            -subscriptionId ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ./Validate-Deployment.ps1 -nameSuffix ${{ env.NAME_SUFFIX }}

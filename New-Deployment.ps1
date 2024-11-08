@@ -1,6 +1,6 @@
 param (
     [Parameter()]
-    [string]$nameSuffix = "ek001",
+    [string]$nameSuffix = "ek005",
     [Parameter()]
     [string]$deploymentName = "deploy-rg-fnapp-$nameSuffix",
     [Parameter()]
