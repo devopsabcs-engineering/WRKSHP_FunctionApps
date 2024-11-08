@@ -103,7 +103,7 @@ jobs:
         run: |
           # get azure function app name
           $azureFunctionName = az deployment group show --resource-group ${{ env.RESOURCE_GROUP }} `
-            --name ${{ env.DEPLOYMENT_NAME }}`
+            --name ${{ env.DEPLOYMENT_NAME }} `
             --query properties.outputs.azureFunctionName.value `
             -o tsv
           echo "Function App Name: $azureFunctionName"
