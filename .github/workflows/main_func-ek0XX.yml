@@ -15,10 +15,10 @@ on:
         default: "ek005"
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: "src" # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "src/helloworldexample" # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
-  AZURE_FUNCTIONAPP_NAME: "func-${{ inputs.nameSuffix }}" # set this to your Azure Function App name
-  RESOURCE_GROUP: "rg-${{ inputs.nameSuffix }}" # set this to your Azure Resource Group name
+  RESOURCE_GROUP: "rg-fnapp-${{ inputs.nameSuffix }}" # set this to your Azure Resource Group name
+  DEPLOYMENT_NAME: "deploy-rg-fnapp-${{ inputs.nameSuffix }}" # set this to your Azure Deployment name
   LOCATION: "canadacentral" # set this to the Azure region where your resources will be deployed
   NAME_SUFFIX: "${{ inputs.nameSuffix }}" # set this to a unique suffix for resource names
 
@@ -97,6 +97,18 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      # get the Azure Function App name from deployment output
+      - name: Get Azure Function App Name
+        id: get_app_name
+        run: |
+          # get azure function app name
+          $azureFunctionName = az deployment group show --resource-group ${{ env.RESOURCE_GROUP }} `
+            --name ${{ env.DEPLOYMENT_NAME }}`
+            --query properties.outputs.azureFunctionName.value `
+            -o tsv
+          echo "Function App Name: $azureFunctionName"
+          # set the function app name as an environment variable
+          echo "##[set-output name=AZURE_FUNCTIONAPP_NAME;]$azureFunctionName"
       - name: "Run Azure Functions Action"
         uses: Azure/functions-action@v1
         id: fa
